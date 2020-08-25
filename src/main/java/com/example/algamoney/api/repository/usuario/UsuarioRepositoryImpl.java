@@ -1,13 +1,7 @@
 package com.example.algamoney.api.repository.usuario;
 
-import com.example.algamoney.api.model.Lancamento;
-import com.example.algamoney.api.model.Usuario;
-import com.example.algamoney.api.repository.filter.LancamentoFilter;
-import com.example.algamoney.api.repository.filter.UsuarioFilter;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
-import org.springframework.util.StringUtils;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -16,8 +10,14 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
-import java.util.ArrayList;
-import java.util.List;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+
+import com.example.algamoney.api.model.Usuario;
+import com.example.algamoney.api.model.Usuario_;
+import com.example.algamoney.api.repository.filter.UsuarioFilter;
 
 public class UsuarioRepositoryImpl implements UsuarioRepositoryQuery {
 
@@ -45,15 +45,15 @@ public class UsuarioRepositoryImpl implements UsuarioRepositoryQuery {
         List<Predicate> predicates = new ArrayList<>();
 
         if(usuarioFilter.getCodigo() != null){
-            predicates.add(builder.equal(root.get("codigo"),usuarioFilter.getCodigo()));
+            predicates.add(builder.equal(root.get(Usuario_.codigo),usuarioFilter.getCodigo()));
         }
 
-        if(!usuarioFilter.getNome().isEmpty()){
-            predicates.add(builder.like(root.get("nome"),usuarioFilter.getNome() + '%'));
+        if(usuarioFilter.getNome() != null){
+            predicates.add(builder.like(builder.lower(root.get(Usuario_.nome)),usuarioFilter.getNome().toLowerCase() + "%"));
         }
 
-        if(!usuarioFilter.getEmail().isEmpty()){
-            predicates.add(builder.like(root.get("email"), usuarioFilter.getEmail() + '%'));
+        if(usuarioFilter.getEmail() != null){
+            predicates.add(builder.like(builder.lower(root.get(Usuario_.email)), usuarioFilter.getEmail().toLowerCase() + "%"));
         }
 
         return predicates.toArray(new Predicate[predicates.size()]);
